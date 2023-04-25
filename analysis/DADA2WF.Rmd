@@ -133,7 +133,7 @@ I have `r ncol(seqtab)` ASVs in the dataset!
 seqtab_nochim <- removeBimeraDenovo(seqtab, verbose = TRUE)
 # 603 chimeras removed! 
 # What proportion of counts were removed? 
-chim_check <- sum(seqtab_nochim)/sum(seqtab) # 0.9725445
+chim_check <- sum(seqtab_nochim)/sum(seqtab) # 10.00414
 frac_removed <- (1-chim_check)*100
 frac_removed
 ```
