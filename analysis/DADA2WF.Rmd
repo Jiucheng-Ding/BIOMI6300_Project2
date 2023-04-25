@@ -18,12 +18,13 @@ pacman::p_load(dada2, tidyverse, patchwork, phyloseq, Biostrings, install = FALS
 # Set the path to the seq files 
 ```{r}
 # Set path to the gzipped files 
-path <- "data/sra_data"
+path <- "/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/sra_data"
+
 path
 # What files do we have?
 list.files(path)
 # Setting a variable with all the sample names by scanning our "samples" file 
-samples <- scan("data/accession_list.txt", what = "character")
+samples <- scan("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/accession_list.txt", what = "character")
 ```
 
 ## Load in Forward and Reverse reads and assess the quality
@@ -41,9 +42,31 @@ reverse_reads
 # Create a variable holding file names for the Forward and Reverse filtered reads 
 filtered_forward_reads <- file.path(path, "filtered", paste0(samples, "_R1_filtered.fastq.gz"))
 filtered_reverse_reads <- file.path(path, "filtered", paste0(samples, "_R2_filtered.fastq.gz"))
-# Show the quality of each base on the reads of first 4 samples 
-forwardQual4_plot <- plotQualityProfile(forward_reads[1:4])
-reverseQual4_plot <- plotQualityProfile(reverse_reads[1:4])
-# Plot F and R together
-forwardQual4_plot + reverseQual4_plot
+#Show the quality of each base on the reads of first 4 samples 
+#forwardQual4_plot <- plotQualityProfile(forward_reads[1:4])
+#reverseQual4_plot <- plotQualityProfile(reverse_reads[1:4])
+#Plot F and R together
+#forwardQual4_plot + reverseQual4_plot
+
 ```
+
+
+
+list.files(path)
+dir.create(file.path(path, "filtered"))
+
+```{r filter-trim}
+filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
+                              reverse_reads, filtered_reverse_reads,
+                              truncLen = c(163,147), trimLeft = c(19,20),
+                              maxN = 0, maxEE = c(1,1), truncQ = 2, 
+                              rm.phix = TRUE, compress = TRUE, 
+                              multithread = TRUE)
+# 163-forward, 147-reverse
+# Plot the quality of trimmed reads! 
+forward_filteredQual4_plot <- plotQualityProfile(filtered_forward_reads[1:4])
+reverse_filteredQual4_plot <- plotQualityProfile(filtered_reverse_reads[1:4])
+# Put the plots all together into one gigantic plot :) 
+(forwardQual4_plot + reverseQual4_plot) / (forward_filteredQual4_plot + reverse_filteredQual4_plot) 
+```
+
