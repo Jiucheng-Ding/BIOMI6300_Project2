@@ -5,7 +5,209 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Goals of our Pre-Processing File
+
+We will work here in this document to remove any unncessary ASVs or samples, such as: 
+
+1. Mitochondria ASVs. 
+2. Chloroplast ASVs.  
+3. Deal with the controls:  
+    a. ASVs found in the controls.  
+    b. Control samples themselves.  
+4. Mock ASVs/Mock Community.  
+5. Samples that have too few reads for reasonable ecological analysis.
+
+
+## Load Packages and Functions
+
+```{r load-packages-functions}
+# Load Packages
+pacman::p_load(tidyverse, phyloseq, install = FALSE)
+# Source functions
+source("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
+source("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
+```
+
+## Load the data!
+
+```{r load-data}
+# Load in the raw_phyloseq data from DADA2_workflow.Rmd
+load("data/raw_physeq.RData")
+# Take a look at the S4 object!
+raw_physeq
+# Tell us about you phyloseq!
+str(raw_physeq)
+typeof(raw_physeq)
+#View(raw_physeq@otu_table)
+#View(raw_physeq@tax_table)
+#View(data.frame(sample_data(raw_physeq)))
+```
+
+
+# Remove unnecessary taxa
+
+We will need to remove the ASVs that are mitochondria, chloroplast or within the mock community. 
+
+```{r rm-ASVs}
+# Make a new phyloseq object without the mitochondria, chloroplast or mock community
+noMitoChloroCJMock_physeq <- 
+  raw_physeq %>%
+  # Remove the mitochondria ASVs.  #NOTE THERE WAS A TYPO HERE IN CLASS! 
+  subset_taxa(Family != "Mitochondria" | is.na(Family)) %>%
+  # Remove the chloroplast ASVs 
+  subset_taxa( Order !="Chloroplast" | is.na(Order)) %>%
+  # remove the mock community and its ASVs 
+  prune_samples(sample_names(.) %!in% c("CJ-V08-P", "MockZymoPos"), .) %>%
+  # Now we will remove any ASVs of count 0
+  prune_taxa(taxa_sums(.) > 0, .)
+# Let's take a look 
+noMitoChloroCJMock_physeq
+# How many taxa have we removed so far? 
+num_ASVs_rm <- ntaxa(raw_physeq) - ntaxa(noMitoChloroCJMock_physeq)
+num_ASVs_rm
+# Proportion of original data maintained
+prop_ASV_rm <- ntaxa(noMitoChloroCJMock_physeq)/ntaxa(raw_physeq)
+prop_ASV_rm
+```
+
+Now, we could write our methods: 
+
+Mitochondria, chloroplasts, and mock communities were removed resulting in the loss of `r (1-prop_ASV_rm)*100`% of the data.
+
+
+
+## Remove Control samples 
+
+Next, we will need to remove ASVs that are found within our controls. 
+
+```{r rm-controls}
+#3. Control samples.  
+# Create a vector with the control samples 
+control_samples <- c("WaterControl", "022um-Control", "3um-Control", "DNA-Ext-Control")
+# Which taxa are in the control samples? 
+control_physeq <- 
+  noMitoChloroCJMock_physeq %>%
+  # Identify control samples
+  subset_samples(., (names %in% control_samples)) %>%
+  # make sure to remove the ASVs that were not in the controls 
+  prune_taxa(taxa_sums(.) > 0, .)
+# Check out the phyloseq object 
+control_physeq
+# vector of control ASVs
+control_ASVs <- 
+  data.frame(control_physeq@tax_table)$ASV
+# Plot the abundance of control ASVs across the 4 samples 
+control_physeq %>%
+  plot_bar(., "ASV", fill = "ASV")
+################################# ASV ANALYSIS YOU CAN SKIP #################################
+# Make a phyloseq object with only the control ASVs in it 
+controlASVs_physeq <- 
+  noMitoChloroCJMock_physeq %>%
+  subset_taxa(., ASV %in% control_ASVs)
+# Check it out
+controlASVs_physeq
+# Let's take a look at the plot 
+controlASVs_physeq %>%
+  plot_bar(., "ASV", fill="ASV", facet_grid=Sample_or_Control~.) + 
+  labs(title = "All Control ASV Abundance in Samples vs Controls") + 
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+# From this plot, it looks like ASV_1 is REAL and perhaps ASV_20? Let's check 
+controlASVs_physeq %>%
+  subset_taxa(., ASV %in% c("ASV_3", "ASV_1", "ASV_20")) %>% # 
+  plot_bar(., "ASV", fill="ASV", facet_grid=Sample_or_Control~.) +
+  labs(title = "Should we keep these ASVs?") + 
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 0, hjust = 0.5))
+# All the other OTUs 
+controlASVs_physeq %>%
+  subset_taxa(., ASV %!in% c("ASV_3", "ASV_1", "ASV_20")) %>% # ALSO SHOW "ASV_20"
+  plot_bar(., "ASV", fill="ASV", facet_grid=Sample_or_Control~.) + 
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+################################################################################
+# FROM ABOVE ANALYSIS 
+# "ASV_1" and "ASV_20" MUST BE KEPT IN THE DATA! 
+# Make a vector of all ASVs to remove
+control_ASVs_toREMOVE <- dplyr::setdiff(control_ASVs, c("ASV_1", "ASV_20"))
+# Now make a new phyloseq object without these! 
+length(control_ASVs_toREMOVE)
+length(control_ASVs)
+## Actually remove the ASVs! 
+# Create Phyloseq object that has control samples removed. 
+noCONTROLSMitoChloroCJMock_physeq <- 
+  noMitoChloroCJMock_physeq %>%
+  # Now remove ASVs found in control samples samples, EXCEPT ASV_1 and ASV_20
+  subset_taxa(., (ASV %!in% control_ASVs_toREMOVE)) %>%
+  # Now remove control samples
+  subset_samples(., (names %!in% control_samples)) %>%
+  # Remove ASVs with 0 counts. 
+  prune_taxa(taxa_sums(.) > 0, .) 
+# Check out the phyloseq object 
+noCONTROLSMitoChloroCJMock_physeq
+# After filtering we have removed a total of how many ASVs? 
+total_ASVs_rm <- ntaxa(raw_physeq) - ntaxa(noCONTROLSMitoChloroCJMock_physeq)
+total_ASVs_rm
+```
+
+
+
+
+**Removing ASVs!**  
+- There were `r ntaxa(noMitoChloroCJMock_physeq)` ASVs that were chloroplasts or mitochondria, extra sample, or mock community.
+- There were `r length(control_ASVs_toREMOVE)` in the control samples. 
+- A total of `r total_ASVs_rm` were removed in our filtering steps.
+- Now, we have a total of `r ntaxa(noCONTROLSMitoChloroCJMock_physeq)`
+
+
+# Evaluate the Sequencing Depth 
+```{r}
+# Look at the phyloseq object
+noCONTROLSMitoChloroCJMock_physeq
+# Calcuate the sum of the seqs in each sample
+seqSums_df <- 
+  noCONTROLSMitoChloroCJMock_physeq %>%
+  otu_table() %>%
+  # Take the sum of each column of the ASV matrix 
+  colSums() %>%
+  data.frame() %>%
+  rownames_to_column(var = "names") %>%
+  make_MA_metadata()
+  
+# Fix column name in 2nd column 
+colnames(seqSums_df)[2] <- "TotalSeqs"
+# take look at the data frame 
+View(seqSums_df)
+# Plot it 
+# histogram plot 
+seqSums_df %>%
+  ggplot(aes(x = TotalSeqs)) + 
+  geom_histogram(bins = 50) + 
+  labs(title = "Histogram of Raw Sequence Counts per sample")
+# Density plots 
+seqSums_df %>%
+  ggplot(aes(x = TotalSeqs, fill = fraction)) + 
+  geom_density(alpha = 0.5) + 
+  scale_fill_manual(values = fraction_colors)
+```
+
+# Remove sample with too few reads
+```{r}
+preprocessed_physeq <- 
+  noCONTROLSMitoChloroCJMock_physeq %>%
+  subset_samples(., names != "20210615-MA-SCB2F")
+min(sample_sums(preprocessed_physeq))
+```
+
+# Save preprocessed phyloseq!
+```{r save-physeq}
+save(preprocessed_physeq, file = "data/preprocessed_physeq.RData")
+```
+
+
+# Session Information 
+```{r}
+# Reproducibility
+devtools::session_info()
 ```
 
