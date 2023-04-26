@@ -164,7 +164,7 @@ track %>%
   mutate(read_type = fct_relevel(read_type, 
                                  "input", "filtered", "denoisedF", "denoisedR", "merged", "nochim")) %>%
   ggplot(aes(x = read_type, y = num_reads, fill = read_type)) + 
-  facet_grid(~fraction) + 
+  facet_grid(~location) + 
   geom_line(aes(group = names), color = "grey") + 
   geom_point(shape = 21, size = 3, alpha = 0.8) + 
   scale_fill_brewer(palette = "Spectral") + 
@@ -174,7 +174,7 @@ track %>%
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 # First, let's source the colors_and_shapes.R
 # This file is in /workdir/in_class_data/colors_and_shapes.R
-source("code/colors_and_shapes.R")
+source("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
 # Plot the percent reads retained 
 track %>%
   as.data.frame() %>%
@@ -182,10 +182,10 @@ track %>%
   rownames_to_column(var = "names") %>% # As input to make_MA_metadata
   make_MA_metadata() %>%
   # Make the plot! 
-  ggplot(aes(x = fraction, y = percent_reads_retained, fill = fraction)) + 
+  ggplot(aes(x = location, y = percent_reads_retained, fill = location)) + 
   geom_jitter(shape = 21, size = 3, alpha = 0.8) + 
   geom_boxplot(alpha = 0.4, outlier.shape = NA) + 
-  scale_fill_manual(values = fraction_colors) + 
+  scale_fill_manual(values = location_colors) + 
   theme_bw() + 
   labs(y = "Percent Sequences Retained by DADA2") +
   theme(axis.title.x = element_blank())
@@ -211,7 +211,7 @@ View(taxa_print)
 
 ```{r eval-accuracy}
 # Check the mock commmunity 
-mock_sample <- seqtab_nochim["SRR15570324_R1_filtered.fastq.gz",]
+mock_sample <- seqtab_nochim["SRR15570324",]
 length(mock_sample)
 # Drop ASVs absent from mock community 
 length(mock_sample[mock_sample > 0])
@@ -301,7 +301,7 @@ write.table(asv_tax, "data/ASV_taxonomy.tsv", sep = "\t", quote = FALSE, col.nam
 ```{r metadata-prep}
 # Read in metadata 
 metadata = 
-  read.csv("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/SraRunTable-7.txt") %>%
+  read.csv("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/YSmetadata.csv") %>%
   mutate(X = NULL) %>%
   # fix typo 
   mutate(Sample_or_Control = droplevels(fct_recode(Sample_or_Control, "True Sample" = " True Sample")))
@@ -320,3 +320,4 @@ raw_physeq <- phyloseq(otu_table(asv_tab, taxa_are_rows = TRUE),
 raw_physeq
 save(raw_physeq, file = paste0("data/raw_physeq.RData"))
 ```
+
