@@ -1,38 +1,18 @@
 # This file indicates that colors and shapes of metadata across various
 # let's keep the visualizations consistent! :) 
 
-fraction_shapes <- c(
-  "Particle" = 23, 
-  "Free" = 21,
-  "Whole" = 22,
-  "Control" = 24)
+location_shapes <- c(
+  "FC" = 23, 
+  "JJ" = 21)
 
-fraction_colors <- c(
-  "Particle" = "firebrick3", 
-  "Free" = "goldenrod1", 
-  "Whole" = "darkorange2",
-  "Control" = "grey")
-
-station_colors <- c(
-  "Shipping Channel" = "dodgerblue4",
-  "Aransas Bay" = "dodgerblue2",
-  "Copano West" = "#D9CC3C",
-  "Copano East" = "#A0E0BA",
-  "Mesquite Bay" = "#00ADA7",
-  "Control" = "grey")
-
-station_shapes <- c(
-  "Shipping Channel" = 15,
-  "Aransas Bay" = 16, 
-  "Copano West" = 17,
-  "Copano East" = 18,
-  "Mesquite Bay" = 19,
-  "Control" = 20)
+location_colors <- c(
+  "FC" = "goldenrod1", 
+  "JJ" = "darkorange2")
 
 
-depth_colors <- c(
-  "B" = "steelblue3",
-  "S" = "forestgreen")
+heat_colors <- c(
+  "H" = "steelblue3",
+  "C" = "firebrick3")
 
 # Set the ggplot theme
 theme_set(theme_bw() + 
