@@ -37,11 +37,8 @@ make_MA_metadata <- function(dataframe){
   dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "08", "August", 
-                            ifelse(dataframe$month == "06", "June", 
-                                   ifelse(dataframe$month == "10", "October", "Control")))
-  dataframe$month <- as.factor(dataframe$month)
-  dataframe$month <- factor(dataframe$month,levels = c("June", "October", "August", "Control"))
+  dataframe$month <- ifelse(dataframe$month == "08", "August")
+                          
   
   # Location
   dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
