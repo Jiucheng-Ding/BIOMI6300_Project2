@@ -20,46 +20,45 @@
 # IMPORTANT!!!  The dataframe MUST have column named "names"
 make_MA_metadata <- function(dataframe){ 
   
-  # Create new columnes based on information in the sample name
-  dataframe$year <- substr(dataframe$names, 1,4) # 1-4th letters = year sampled
-  dataframe$month <- substr(dataframe$names, 5,6) # 5-6th letter = month sampled
-  dataframe$day <- substr(dataframe$names, 7,8) # 7-8th letter = day sampled
+  # Create new columns based on information in the sample name
+  dataframe$year <- substr(dataframe$names, 1,4) 
+  dataframe$month <- substr(dataframe$names, 5,6) 
+  dataframe$day <- substr(dataframe$names, 7,8) 
+  dataframe$location <- substr(dataframe$names,9,10) 
+  dataframe$heat <- substr(dataframe$names, 11, 11) 
+  dataframe$Run <- substr(dataframe$names, 12,12) 
   
-  dataframe$project <- substr(dataframe$names, 10,11) # 10-11th letter = project
-  
-  dataframe$station <- substr(dataframe$names,13,14) # 13-14 station info
-  dataframe$depth <- substr(dataframe$names, 15, 15) # 15th = where in water column sample was taken
-  dataframe$replicate <- substr(dataframe$names, 16, 16) # 16th = Which sample replicate 
-  dataframe$fraction <- substr(dataframe$names, 17,17) # 17th = filter fraction (e.g. particle, whole, free)
-  
-  # Fraction
-  dataframe$fraction <- ifelse(dataframe$fraction == "F", "Free", 
-                               ifelse(dataframe$fraction == "P", "Particle", 
-                                      ifelse(dataframe$fraction == "W","Whole", "Control")))
-  dataframe$fraction <- as.factor(dataframe$fraction)
-  dataframe$fraction <- factor(dataframe$fraction,levels = c("Particle", "Free", "Whole", "Control"))
+  # Run
+  dataframe$Run <- ifelse(dataframe$Run == "4", "SRR15570324", 
+                          ifelse(dataframe$Run == "5", "SRR15570325", 
+                                 ifelse(dataframe$Run == "6","SRR15570326",
+                                        ifelse(dataframe$Run == "7","SRR15570327"))))
+  dataframe$Run <- as.factor(dataframe$Run)
+  dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "06", "June", 
-                            ifelse(dataframe$month == "10", "October", "Control"))
+  dataframe$month <- ifelse(dataframe$month == "08", "August", 
+                            ifelse(dataframe$month == "06", "June", 
+                                   ifelse(dataframe$month == "10", "October", "Control")))
   dataframe$month <- as.factor(dataframe$month)
-  dataframe$month <- factor(dataframe$month,levels = c("June", "October", "Control"))
+  dataframe$month <- factor(dataframe$month,levels = c("June", "October", "August", "Control"))
   
-  # Station
-  dataframe$station <- ifelse(dataframe$station == "AB", "Aransas Bay", 
-                              ifelse(dataframe$station == "CE", "Copano East", 
-                                     ifelse(dataframe$station == "CW","Copano West", 
-                                            ifelse(dataframe$station == "MB", "Mesquite Bay",
-                                                   ifelse(dataframe$station == "SC", "Shipping Channel",
-                                                          "Control")))))
-  dataframe$station <- as.factor(dataframe$station)
-  dataframe$station <- factor(dataframe$station,levels = c("Copano West", "Copano East", "Mesquite Bay", 
-                                                           "Aransas Bay", "Shipping Channel", "Control"))
+  # Location
+  dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
+                               ifelse(dataframe$location == "JJ", "JJ", "unknown"))
+  dataframe$location <- as.factor(dataframe$location)
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", "unknown"))
+  
+  # Heat
+  dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
+                           ifelse(dataframe$heat == "C", "cool", "unknown"))
+  dataframe$heat <- as.factor(dataframe$heat)
+  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool", "unknown"))
   
   # Return the data
   return(dataframe)
-  
 }
+
 
 
 
@@ -109,45 +108,43 @@ scale_reads <- function(physeq, n = min(sample_sums(physeq)), round = "round") {
 
 # 5. making metadata from replicates. 
 
-make_MA2_metadata <- function(dataframe){ 
+make_MA_metadata <- function(dataframe){ 
   
-  # Create new columnes based on information in the sample name
-  dataframe$year <- substr(dataframe$names, 2,5) # 1-4th letters = year sampled
-  dataframe$month <- substr(dataframe$names, 6,7) # 5-6th letter = month sampled
-  dataframe$day <- substr(dataframe$names, 8,9) # 7-8th letter = day sampled
+  # Create new columns based on information in the sample name
+  dataframe$year <- substr(dataframe$names, 1,4) 
+  dataframe$month <- substr(dataframe$names, 5,6) 
+  dataframe$day <- substr(dataframe$names, 7,8) 
+  dataframe$location <- substr(dataframe$names,9,10) 
+  dataframe$heat <- substr(dataframe$names, 11, 11) 
+  dataframe$Run <- substr(dataframe$names, 12,12) 
   
-  dataframe$project <- substr(dataframe$names, 11,12) # 10-11th letter = project
-  
-  dataframe$station <- substr(dataframe$names,14,15) # 13-14 station info
-  dataframe$depth <- substr(dataframe$names, 16, 17) # 15th = where in water column sample was taken
-  dataframe$replicate <- substr(dataframe$names, 17, 17) # 16th = Which sample replicate 
-  dataframe$fraction <- substr(dataframe$names, 18,18) # 17th = filter fraction (e.g. particle, whole, free)
-  
-  # Fraction
-  dataframe$fraction <- ifelse(dataframe$fraction == "F", "Free", 
-                               ifelse(dataframe$fraction == "P", "Particle", 
-                                      ifelse(dataframe$fraction == "W","Whole", "Control")))
-  dataframe$fraction <- as.factor(dataframe$fraction)
-  dataframe$fraction <- factor(dataframe$fraction,levels = c("Particle", "Free", "Whole", "Control"))
+  # Run
+  dataframe$Run <- ifelse(dataframe$Run == "4", "SRR15570324", 
+                          ifelse(dataframe$Run == "5", "SRR15570325", 
+                                 ifelse(dataframe$Run == "6","SRR15570326",
+                                        ifelse(dataframe$Run == "7","SRR15570327"))))
+  dataframe$Run <- as.factor(dataframe$Run)
+  dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "06", "June", 
-                            ifelse(dataframe$month == "10", "October", "Control"))
+  dataframe$month <- ifelse(dataframe$month == "08", "August", 
+                            ifelse(dataframe$month == "06", "June", 
+                                   ifelse(dataframe$month == "10", "October", "Control")))
   dataframe$month <- as.factor(dataframe$month)
-  dataframe$month <- factor(dataframe$month,levels = c("June", "October", "Control"))
+  dataframe$month <- factor(dataframe$month,levels = c("June", "October", "August", "Control"))
   
-  # Station
-  dataframe$station <- ifelse(dataframe$station == "AB", "Aransas Bay", 
-                              ifelse(dataframe$station == "CE", "Copano East", 
-                                     ifelse(dataframe$station == "CW","Copano West", 
-                                            ifelse(dataframe$station == "MB", "Mesquite Bay",
-                                                   ifelse(dataframe$station == "SC", "Shipping Channel",
-                                                          "Control")))))
-  dataframe$station <- as.factor(dataframe$station)
-  dataframe$station <- factor(dataframe$station,levels = c("Copano West", "Copano East", "Mesquite Bay", 
-                                                           "Aransas Bay", "Shipping Channel", "Control"))
+  # Location
+  dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
+                               ifelse(dataframe$location == "JJ", "JJ", "unknown"))
+  dataframe$location <- as.factor(dataframe$location)
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", "unknown"))
+  
+  # Heat
+  dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
+                           ifelse(dataframe$heat == "C", "cool", "unknown"))
+  dataframe$heat <- as.factor(dataframe$heat)
+  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool", "unknown"))
   
   # Return the data
   return(dataframe)
-  
 }
