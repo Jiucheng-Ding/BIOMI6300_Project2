@@ -86,25 +86,25 @@ background_col_PA <- "firebrick3"
 # Prepare data to color the figure for iNEXT
 dat <- colnames(iNEXT_input_df) %>%  
   data.frame() 
-colnames(dat)[1] <- "names"     
+colnames(dat)[1] <- "Run"     
 
 sub_metadata <- dat %>% make_MA_metadata()
 # Add the colors for the plotting!
 dat_iNEXT <- dat %>%    
-  left_join(dat, by = "names") %>%  
-  mutate(location_color = ifelse(location == "FC", background_col_PA, 
-                                 ifelse(location == "JJ", background_col_FL
-                                    ))
+  left_join(metadata_df, by = "Run")   
+  #mutate(location_color = ifelse(location == "FC", background_col_PA, 
+                                # ifelse(location == "JJ", background_col_FL
+                                    
 # Now plot it all :) 
 # Plot the rarefaction/extrapolation curve (type = 1)
 rarefaction_fixed_plot <- 
   ggiNEXT(iNEXT_data, type=1, facet.var="Order.q") + 
   facet_wrap(~Order.q, scales="fixed") +
-  scale_color_manual(values = dat_iNEXT$location_colors,  guide = FALSE) +
-  scale_fill_manual(values = dat_iNEXT$location_colors, guide = FALSE) +
+  #scale_color_manual(values = dat_iNEXT$location_colors,  guide = FALSE) +
+  #scale_fill_manual(values = dat_iNEXT$location_colors, guide = FALSE) +
   theme(legend.position = "right") + 
   labs(x = "Number of Sequences")
-rarefaction_fixed_plot
+#rarefaction_fixed_plot
 # Save the file! 
 #ggsave(rarefaction_fixed_plot, 
       # filename = "figures/rarefaction_fixed.png",
@@ -118,31 +118,31 @@ rarefaction_fixed_plot
 # Explore the iNEXT object
 str(iNEXT_data)
 # Pull out information on Rarefaction 
-str(iNEXT_data$iNextEst$size_based)
+str(iNEXT_data[["iNextEst"]][["size_based"]])
 iNEXT_data[[2]][1]
 # Look into the observed diversity values and check them 
 obs_rich_df <- 
-  iNEXT_data$iNextEst$size_based %>%
+  iNEXT_data[["iNextEst"]][["size_based"]] %>%
   # extract the richness from the data
   dplyr::filter(Order.q == 0) %>%
   dplyr::filter(Method == "Observed") %>%
   dplyr::rename(names = Assemblage) %>%
   # Remove the X's from the sample names
-  #mutate(names = gsub("X", "", names)) %>%
-  #make_MA_metadata()
+  mutate(names = gsub("X", "", names)) %>%
+  make_MA_metadata()
 # Manually Plot the rarefaction 
-iNEXT_data$iNextEst$size_based %>%
+iNEXT_data[["iNextEst"]][["size_based"]] %>%
   # extract the richness from the data
   dplyr::filter(Order.q == 0) %>%
   dplyr::filter(Method == "Rarefaction") %>%
   dplyr::rename(names = Assemblage) %>%
   # Remove the X's from the sample names
-  #mutate(names = gsub("X", "", names)) %>%
-  #make_MA_metadata() %>%
-  ggplot(aes(x = m, y = qD, color = location, group = names)) + 
+  mutate(names = gsub("X", "", names)) %>%
+  make_MA_metadata() %>%
+  ggplot(aes(x = m, y = qD, color = location_colors, group = names)) + 
   geom_line() + 
   labs(x = "Number of Sequences", y = "Species Richness") + 
-  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = fraction)) + 
+  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = location)) + 
   facet_grid(.~heat) + 
   scale_color_manual(values = location_colors)
 ```
@@ -163,10 +163,10 @@ ggiNEXT(iNEXT_data, type = 2) +
 iNEXT_data$AsyEst %>%
   head()
 obs_rich_df %>%
-  ggplot(aes(x = location, y = qD, color = location)) + 
+  ggplot(aes(x = "hot", "cool", y = qD, color = heat)) + 
   geom_jitter(size = 2.5) + 
-  facet_grid(.~heat) + 
-  geom_boxplot(aes(fill = location), alpha = 0.5, outlier.shape = NA) + 
-  scale_fill_manual(values = location_colors) + 
-  scale_color_manual(values = location_colors) 
+ # facet_grid(.~heat) + 
+  geom_boxplot(aes(fill = heat), alpha = 0.5, outlier.shape = NA) + 
+  scale_fill_manual(values = heat_colors) + 
+  scale_color_manual(values = heat_colors) 
 ```
