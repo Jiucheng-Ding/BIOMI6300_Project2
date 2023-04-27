@@ -1,20 +1,24 @@
 ---
-title: "Diversity"
+title: "Diversity and Compositional Analysis of Yellwostone Hot Springs Metagenome"
 author: "Jiucheng Ding"
 date: "`r Sys.Date()`"
 output: html_document
 editor_options:
   chunk_output_type: console
 ---
+Accession: PRJNA756970
 
+Introduction
+
+Here we are going to load the packages and sources required. 
 # Load packages 
 ```{r load-packages}
 #install.packages("iNEXT")
 # Efficiently load packages 
 pacman::p_load(phyloseq, iNEXT, tidyverse, install = FALSE)
 # load in functions and color preferences
-source("code/functions.R")
-source("code/colors_and_shapes.R")
+source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
+source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
 ```
 
 # Load data
@@ -22,6 +26,7 @@ source("code/colors_and_shapes.R")
 load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
 preprocessed_physeq
 ```
+
 # Run biodiversity analysis!
 ## Work with the iNEXT package 
 ```{r iNEXT-div-estimation}
@@ -37,15 +42,131 @@ iNEXT_input_df <-
 set.seed(777)
 # WARNING: This command takes a while 
 # Calculating over night 
-iNEXT_data <- iNEXT(iNEXT_input_df, q = c(0, 1, 2), datatype = "abundance")
-save(iNEXT_data, file = "/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/iNEXT_Yellowstone.RData")
-load("data/iNEXT_Yellowstone.RData")
+#iNEXT_data <- iNEXT(iNEXT_input_df, q = c(0, 1, 2), datatype = "abundance")
+#save(iNEXT_data, file = "/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/iNEXT_Yellowstone.RData")
+
+load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/iNEXT_Yellowstone.RData")
 # Note that the object is called "iNEXT_data"
+
 typeof(iNEXT_data)
-# Make workable dataframe 
-div_iNEXT_df <- 
-  iNEXT_data$AsyEst %>%
-  dplyr::rename(names = Assemblage) %>%
-  make_MA2_metadata()
+
+# Make workable dataframe ##################### The following dataframe must be fixed.
+#div_iNEXT_df <- 
+  #iNEXT_data$AsyEst %>%
+#  dplyr::rename(names = Assemblage) %>%
+#  make_MA_metadata()
 ```
 
+```{r}
+metadata <- read.csv("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/metadata.csv")
+# Rename the columns to match the format of the make_MA_metadata function
+colnames(metadata) <- c("names","Run","year","month","date","pH","location","heat","temperature")
+
+  #left_join(metadata_df, by = "names")
+
+#write.csv(div_iNEXT_df, file = "data/div_iNEXT_df.csv", row.names = FALSE)
+div_iNEXT_df <- read.csv("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/div_iNEXT_df.csv")
+```
+colnames(iNEXT_data)
+colnames(metadata_df)
+colnames(div_iNEXT_df)
+
+
+
+
+
+# Plot diversity in samples 
+```{r}
+location_colors
+# Set colors for manual plotting with iNEXT
+background_col_FL <- "goldenrod1"
+background_col_PA <- "firebrick3"
+
+#####
+# Prepare data to color the figure for iNEXT
+dat <- colnames(iNEXT_input_df) %>%  
+  data.frame() 
+colnames(dat)[1] <- "names"     
+
+sub_metadata <- dat %>% make_MA_metadata()
+# Add the colors for the plotting!
+dat_iNEXT <- dat %>%    
+  left_join(dat, by = "names") %>%  
+  mutate(location_color = ifelse(location == "FC", background_col_PA, 
+                                 ifelse(location == "JJ", background_col_FL
+                                    ))
+# Now plot it all :) 
+# Plot the rarefaction/extrapolation curve (type = 1)
+rarefaction_fixed_plot <- 
+  ggiNEXT(iNEXT_data, type=1, facet.var="Order.q") + 
+  facet_wrap(~Order.q, scales="fixed") +
+  scale_color_manual(values = dat_iNEXT$location_colors,  guide = FALSE) +
+  scale_fill_manual(values = dat_iNEXT$location_colors, guide = FALSE) +
+  theme(legend.position = "right") + 
+  labs(x = "Number of Sequences")
+rarefaction_fixed_plot
+# Save the file! 
+#ggsave(rarefaction_fixed_plot, 
+      # filename = "figures/rarefaction_fixed.png",
+      # units = "in", height = 3.5, width = 8)
+```
+
+
+
+### Pull out specific samples and plot it 
+```{r}
+# Explore the iNEXT object
+str(iNEXT_data)
+# Pull out information on Rarefaction 
+str(iNEXT_data$iNextEst$size_based)
+iNEXT_data[[2]][1]
+# Look into the observed diversity values and check them 
+obs_rich_df <- 
+  iNEXT_data$iNextEst$size_based %>%
+  # extract the richness from the data
+  dplyr::filter(Order.q == 0) %>%
+  dplyr::filter(Method == "Observed") %>%
+  dplyr::rename(names = Assemblage) %>%
+  # Remove the X's from the sample names
+  #mutate(names = gsub("X", "", names)) %>%
+  #make_MA_metadata()
+# Manually Plot the rarefaction 
+iNEXT_data$iNextEst$size_based %>%
+  # extract the richness from the data
+  dplyr::filter(Order.q == 0) %>%
+  dplyr::filter(Method == "Rarefaction") %>%
+  dplyr::rename(names = Assemblage) %>%
+  # Remove the X's from the sample names
+  #mutate(names = gsub("X", "", names)) %>%
+  #make_MA_metadata() %>%
+  ggplot(aes(x = m, y = qD, color = location, group = names)) + 
+  geom_line() + 
+  labs(x = "Number of Sequences", y = "Species Richness") + 
+  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = fraction)) + 
+  facet_grid(.~heat) + 
+  scale_color_manual(values = location_colors)
+```
+# Completness Curve
+```{r}
+ggiNEXT(iNEXT_data, type = 2) + 
+  scale_color_manual(values = dat_iNEXT$location_colors,  guide = FALSE) +
+  scale_fill_manual(values = dat_iNEXT$location_colors, guide = FALSE) +
+  # ZOOM IN 
+  scale_x_continuous(limits = c(0, 2000)) + 
+  theme(legend.position = "right")
+```
+
+
+
+# Boxplot of Diversity 
+```{r boxplot-div}
+iNEXT_data$AsyEst %>%
+  head()
+obs_rich_df %>%
+  ggplot(aes(x = location, y = qD, color = location)) + 
+  geom_jitter(size = 2.5) + 
+  facet_grid(.~heat) + 
+  geom_boxplot(aes(fill = location), alpha = 0.5, outlier.shape = NA) + 
+  scale_fill_manual(values = location_colors) + 
+  scale_color_manual(values = location_colors) 
+```
