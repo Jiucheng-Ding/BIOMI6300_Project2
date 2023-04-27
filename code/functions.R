@@ -38,25 +38,22 @@ make_MA_metadata <- function(dataframe){
   
   # Month
   dataframe$month <- ifelse(dataframe$month == "08", "August")
-                          
   
   # Location
   dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
-                               ifelse(dataframe$location == "JJ", "JJ", "unknown"))
+                               ifelse(dataframe$location == "JJ", "JJ"))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", "unknown"))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",))
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
-                           ifelse(dataframe$heat == "C", "cool", "unknown"))
+                           ifelse(dataframe$heat == "C", "cool"))
   dataframe$heat <- as.factor(dataframe$heat)
-  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool", "unknown"))
+  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool"))
   
   # Return the data
   return(dataframe)
 }
-
-
 
 
 
@@ -124,23 +121,19 @@ make_MA_metadata <- function(dataframe){
   dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "08", "August", 
-                            ifelse(dataframe$month == "06", "June", 
-                                   ifelse(dataframe$month == "10", "October", "Control")))
-  dataframe$month <- as.factor(dataframe$month)
-  dataframe$month <- factor(dataframe$month,levels = c("June", "October", "August", "Control"))
-  
+  dataframe$month <- ifelse(dataframe$month == "08", "August")
+                        
   # Location
   dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
-                               ifelse(dataframe$location == "JJ", "JJ", "unknown"))
+                               ifelse(dataframe$location == "JJ", "JJ"))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", "unknown"))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",))
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
-                           ifelse(dataframe$heat == "C", "cool", "unknown"))
+                           ifelse(dataframe$heat == "C", "cool"))
   dataframe$heat <- as.factor(dataframe$heat)
-  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool", "unknown"))
+  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool"))
   
   # Return the data
   return(dataframe)
