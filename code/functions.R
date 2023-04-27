@@ -102,7 +102,7 @@ scale_reads <- function(physeq, n = min(sample_sums(physeq)), round = "round") {
 
 # 5. making metadata from replicates. 
 
-make_MA_metadata <- function(dataframe){ 
+make_MA2_metadata <- function(dataframe){ 
   
   # Create new columns based on information in the sample name
   dataframe$year <- substr(dataframe$names, 1,4) 
