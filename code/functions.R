@@ -41,7 +41,7 @@ make_MA_metadata <- function(dataframe){
   
   # Location
   dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
-                               ifelse(dataframe$location == "JJ", "JJ"))
+                               ifelse(dataframe$location == "JJ", "JJ",NA))
   dataframe$location <- as.factor(dataframe$location)
   dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",))
   
@@ -124,10 +124,10 @@ make_MA2_metadata <- function(dataframe){
   dataframe$month <- ifelse(dataframe$month == "08", "August", NA)
                         
   # Location
-  dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
-                               ifelse(dataframe$location == "JJ", "JJ"))
+  dataframe$location <- ifelse(dataframe$location == "FC",
+                               ifelse(dataframe$location == "JJ"))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", NA))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",NA))
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
