@@ -37,13 +37,13 @@ make_MA_metadata <- function(dataframe){
   dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "08", "August")
+  dataframe$month <- ifelse(dataframe$month == "08")
   
   # Location
-  dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
-                               ifelse(dataframe$location == "JJ", "JJ",NA))
+  dataframe$location <- ifelse(dataframe$location == "FC", 
+                               ifelse(dataframe$location == "JJ"))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ"))
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
@@ -105,29 +105,29 @@ scale_reads <- function(physeq, n = min(sample_sums(physeq)), round = "round") {
 make_MA2_metadata <- function(dataframe){ 
   
   # Create new columns based on information in the sample name
-  dataframe$year <- substr(dataframe$names, 1,4) 
-  dataframe$month <- substr(dataframe$names, 5,6) 
-  dataframe$day <- substr(dataframe$names, 7,8) 
-  dataframe$location <- substr(dataframe$names,9,10) 
-  dataframe$heat <- substr(dataframe$names, 11, 11) 
-  dataframe$Run <- substr(dataframe$names, 12,12) 
+  dataframe$year <- substr(dataframe$names, 2,5) 
+  dataframe$month <- substr(dataframe$names, 6,7) 
+  dataframe$day <- substr(dataframe$names, 8,9) 
+  dataframe$location <- substr(dataframe$names,10,11) 
+  dataframe$heat <- substr(dataframe$names, 12, 12) 
+  dataframe$Run <- substr(dataframe$names, 13,13) 
   
   # Run
   dataframe$Run <- ifelse(dataframe$Run == "4", "SRR15570324", 
                           ifelse(dataframe$Run == "5", "SRR15570325", 
                                  ifelse(dataframe$Run == "6","SRR15570326",
-                                        ifelse(dataframe$Run == "7","SRR15570327",NA))))
+                                        ifelse(dataframe$Run == "7","SRR15570327"))))
   dataframe$Run <- as.factor(dataframe$Run)
   dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "08", "August", NA)
+  dataframe$month <- ifelse(dataframe$month == "08")
                         
   # Location
   dataframe$location <- ifelse(dataframe$location == "FC",
                                ifelse(dataframe$location == "JJ"))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",NA))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ"))
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
