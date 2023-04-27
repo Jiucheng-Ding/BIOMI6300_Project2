@@ -96,10 +96,10 @@ plot_ordination(
 plot_ordination(
   physeq = scaled_physeq2267,
   ordination = scaled_BC_pcoa,
-  color = "heat",
-  shape = "heat", 
+  color = "heat_colors",
+  shape = "heat_shapes", 
   title = "Scaled Bray-Curtis PCoA") + 
-  geom_point(size = 5, alpha = 0.5, aes(color = heat)) + 
+  geom_point(size = 5, alpha = 0.5, aes(color = "heat_colors")) + 
   scale_color_manual(values = heat_colors)
 ```
 
@@ -157,12 +157,15 @@ phylum_df <-
   psmelt() %>%                                         # melt into long format data frame 
   dplyr::filter(Abundance > 0.01)                   # filter out phyla that are > 1% abundant 
   
-# Plot the phylum distributions 
-phylum_df %>%
- # dplyr::filter(depth == "S") %>%
-  dplyr::filter(Phylum == "Verrucomicrobiota") %>%
-  ggplot(aes(x = fraction, y = Abundance, fill = Phylum)) + 
-  geom_bar(stat = "identity", color = "black") + 
-  facet_grid(location) + 
-  scale_fill_manual(values = phylum_colors)
+
+# Group the data by Phylum and Sample, and calculate the total Abundance for each group
+phylum_df_grouped <- phylum_df %>%
+  group_by(Phylum, Sample) %>%
+  summarize(total_abundance = sum(Abundance))
+
+# Create the stacked bar chart
+ggplot(data = phylum_df_grouped, aes(x = Sample, y = total_abundance, fill = Phylum)) +
+  geom_col() +
+  labs(x = "Sample", y = "Total Abundance", fill = "Phylum") +
+  theme_bw()
 ````
