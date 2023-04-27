@@ -116,18 +116,18 @@ make_MA_metadata <- function(dataframe){
   dataframe$Run <- ifelse(dataframe$Run == "4", "SRR15570324", 
                           ifelse(dataframe$Run == "5", "SRR15570325", 
                                  ifelse(dataframe$Run == "6","SRR15570326",
-                                        ifelse(dataframe$Run == "7","SRR15570327"))))
+                                        ifelse(dataframe$Run == "7","SRR15570327",NA))))
   dataframe$Run <- as.factor(dataframe$Run)
   dataframe$Run <- factor(dataframe$Run,levels = c("SRR15570324", "SRR15570325", "SRR15570326", "SRR15570327"))
   
   # Month
-  dataframe$month <- ifelse(dataframe$month == "08", "August")
+  dataframe$month <- ifelse(dataframe$month == "08", "August", NA)
                         
   # Location
   dataframe$location <- ifelse(dataframe$location == "FC", "FC", 
                                ifelse(dataframe$location == "JJ", "JJ"))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ",))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", NA))
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
