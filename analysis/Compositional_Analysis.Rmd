@@ -61,14 +61,14 @@ rownames_to_column(., var = "names") %>%
  # Rename the 2nd column 
  colnames(scaled_seqSums_df)[2] <- "TotalSeqs"   
  
- # Plot the histogram
- scaled_seqSums_df %>%  
- ggplot(aes(x=TotalSeqs)) + #fill = location   
- ggtitle("Histogram of Raw Read Counts Samples") +  
- geom_histogram(bins = 100) + 
- theme(legend.position = c(0.15, 0.85)) +   
- scale_y_continuous(expand = c(0,5)) +   
- scale_x_continuous(limits = c(24475, 24500)) # PLAY AROUND WITH NUMBERS! 
+scaled_seqSums_df %>%  
+  ggplot(aes(x=TotalSeqs)) +
+  ggtitle("Histogram of Raw Read Counts Samples") +  
+  geom_histogram(bins = 40) + 
+  theme(legend.position = c(0.15, 0.85)) +   
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 4)) +   
+  scale_x_continuous(limits = c(24480, 24490), breaks = seq(24480,24490,5))
+
 ```
 
 
