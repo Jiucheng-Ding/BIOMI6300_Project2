@@ -103,7 +103,7 @@ rarefaction_fixed_plot <-
   #scale_color_manual(values = dat_iNEXT$location_colors,  guide = FALSE) +
   #scale_fill_manual(values = dat_iNEXT$location_colors, guide = FALSE) +
   theme(legend.position = "right") + 
-  labs(x = "Number of Sequences")
+  labs(x = "Number of Sequences",y = "Species Richness")
 #rarefaction_fixed_plot
 # Save the file! 
 #ggsave(rarefaction_fixed_plot, 
@@ -162,11 +162,12 @@ ggiNEXT(iNEXT_data, type = 2) +
 ```{r boxplot-div}
 iNEXT_data$AsyEst %>%
   head()
+
 obs_rich_df %>%
-  ggplot(aes(x = "hot", "cool", y = qD, color = heat)) + 
+  ggplot(aes(x = heat, y = qD, color = heat)) + 
   geom_jitter(size = 2.5) + 
- # facet_grid(.~heat) + 
+  facet_grid(.~location) + 
   geom_boxplot(aes(fill = heat), alpha = 0.5, outlier.shape = NA) + 
   scale_fill_manual(values = heat_colors) + 
-  scale_color_manual(values = heat_colors) 
+  scale_color_manual(values = heat_colors)
 ```

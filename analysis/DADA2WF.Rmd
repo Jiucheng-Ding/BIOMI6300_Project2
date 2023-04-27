@@ -23,8 +23,10 @@ source("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
 # Set path to the gzipped files 
 path <- "/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/sra_data"
 path
+
 # What files do we have?
 list.files(path)
+
 # Setting a variable with all the sample names by scanning our "samples" file 
 samples <- scan("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/accession_list.txt", what = "character")
 ```
@@ -57,6 +59,8 @@ forwardQual4_plot + reverseQual4_plot
 list.files(path)
 dir.create(file.path(path, "filtered"))
 
+
+# Filter & Trim Reads! 
 ```{r filter-trim}
 filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
                               reverse_reads, filtered_reverse_reads,
@@ -88,7 +92,7 @@ plotErrors(err_reverse_reads, nominalQ = TRUE)
 # run dada2 on the forward seqs
 dada_forward <- dada(filtered_forward_reads, err = err_forward_reads, multithread = TRUE)
 type(dada_forward)
-dada_forward$`SRR15570324_1_filtered.fastq.gz`
+dada_forward$`$SRR15570324_R1_filtered.fastq.gz`
 
 # run dada2 on the reverse sequences 
 dada_reverse <- dada(filtered_reverse_reads, err = err_reverse_reads, multithread = TRUE)
@@ -133,10 +137,9 @@ I have `r ncol(seqtab)` ASVs in the dataset!
 seqtab_nochim <- removeBimeraDenovo(seqtab, verbose = TRUE)
 # 603 chimeras removed! 
 # What proportion of counts were removed? 
-chim_check <- sum(seqtab_nochim)/sum(seqtab) # 10.00414
+chim_check <- sum(seqtab_nochim)/sum(seqtab) # 0.8999586
 frac_removed <- (1-chim_check)*100
-frac_removed
-seqtab_nochim
+frac_removed # 10.00414
 ```
 
 Chimeras represented `r frac_removed` percent of the data. 
