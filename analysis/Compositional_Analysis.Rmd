@@ -103,12 +103,25 @@ plot_ordination(
   scale_color_manual(values = heat_colors)
 ```
 
+
+```{r}
+library(phyloseq)
+
+# create a phyloseq object with OTU table, taxonomic table, and sample data
+physeq <- phyloseq(otu_table, tax_table, sample_data)
+
+# extract sample metadata and convert to data frame
+metadata <- sample_data(physeq) %>% as.data.frame()
+
+```
+
 # Stats! 
 # Check for differences in the communities using PERMANOVA 
 ```{r permanova}
 # Calculate bray curtis for PERMANOVA
 scaled_bray <- phyloseq::distance(scaled_physeq2267, method = "bray", binary = FALSE)
 # pull out metadata 
+
 metadata <- scaled_physeq2267 %>%
   sample_data() %>%
   data.frame()
@@ -117,10 +130,10 @@ metadata <- scaled_physeq2267 %>%
 # Test the hypothesis that the fraction centriods are different 
 # using the bray curtis 
 # Testing if the centroids of the fractions are different? 
-adonis2(scaled_bray ~ fraction, data = metadata)
+adonis2(scaled_bray ~ location, data = metadata)
 # Are the centroids different for stations based on bray curtis?
-adonis2(scaled_bray ~ station, data = metadata)
-adonis2(scaled_bray ~ date, data = metadata)
+adonis2(scaled_bray ~ heat, data = metadata)
+adonis2(scaled_bray ~ pH, data = metadata)
 # Are they independent of each other?
 adonis2(scaled_bray ~ date +  station + fraction, data = metadata)
 # Is there an interaction between the variables? 
@@ -130,8 +143,8 @@ adonis2(scaled_bray ~ station * date * fraction, data = metadata)
 # Homogeniety of dispersion test: Beta dispr
 ```{r}
 # Dispersions between stations 
-betadispr_station <- betadisper(scaled_bray, metadata$station)
-permutest(betadispr_station)
+betadispr_pH <- betadisper(scaled_bray, metadata$pH)
+permutest(betadispr_pH)
 ```
 
 
@@ -146,10 +159,10 @@ phylum_df <-
   
 # Plot the phylum distributions 
 phylum_df %>%
-  dplyr::filter(depth == "S") %>%
+ # dplyr::filter(depth == "S") %>%
   dplyr::filter(Phylum == "Verrucomicrobiota") %>%
   ggplot(aes(x = fraction, y = Abundance, fill = Phylum)) + 
   geom_bar(stat = "identity", color = "black") + 
-  facet_grid(date~station) + 
+  facet_grid(location) + 
   scale_fill_manual(values = phylum_colors)
 ````
