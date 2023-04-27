@@ -11,9 +11,12 @@ location_colors <- c(
 
 
 heat_colors <- c(
-  "H" = "steelblue3",
-  "C" = "firebrick3")
+  "hot" = "steelblue3",
+  "cool" = "firebrick3")
 
+heat_shapes <- c(
+  "hot" = "14",
+  "cool" = "15")
 # Set the ggplot theme
 theme_set(theme_bw() + 
             theme(axis.title = element_text(size = 12),
