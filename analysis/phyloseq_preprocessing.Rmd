@@ -24,15 +24,15 @@ We will work here in this document to remove any unncessary ASVs or samples, suc
 # Load Packages
 pacman::p_load(tidyverse, phyloseq, install = FALSE)
 # Source functions
-source("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
-source("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
+#source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
+#source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
 ```
 
 ## Load the data!
 
 ```{r load-data}
 # Load in the raw_phyloseq data from DADA2_workflow.Rmd
-load("data/raw_physeq.RData")
+load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/raw_physeq.RData")
 # Take a look at the S4 object!
 raw_physeq
 # Tell us about you phyloseq!
@@ -69,6 +69,7 @@ num_ASVs_rm
 prop_ASV_rm <- ntaxa(noMitoChloroCJMock_physeq)/ntaxa(raw_physeq)
 prop_ASV_rm
 ```
+
 
 Now, we could write our methods: 
 
@@ -186,9 +187,9 @@ seqSums_df %>%
   labs(title = "Histogram of Raw Sequence Counts per sample")
 # Density plots 
 seqSums_df %>%
-  ggplot(aes(x = TotalSeqs, fill = fraction)) + 
+  ggplot(aes(x = TotalSeqs, fill = location)) + 
   geom_density(alpha = 0.5) + 
-  scale_fill_manual(values = fraction_colors)
+  scale_fill_manual(values = location_colors)
 ```
 
 # Remove sample with too few reads
