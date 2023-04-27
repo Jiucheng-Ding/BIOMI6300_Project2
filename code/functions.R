@@ -42,16 +42,18 @@ make_MA_metadata <- function(dataframe){
   
   
   # Location
-  dataframe$location <- ifelse(dataframe$location == "FC", 
-                               ifelse(dataframe$location == "JJ"))
+  dataframe$location <- ifelse(dataframe$location == "FC", "FC",
+                               ifelse(dataframe$location == "JJ", "JJ", NA))
   dataframe$location <- as.factor(dataframe$location)
-  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ"))
+  dataframe$location <- factor(dataframe$location,levels = c("FC", "JJ", NA))
+  
   
   # Heat
   dataframe$heat <- ifelse(dataframe$heat == "H", "hot", 
-                           ifelse(dataframe$heat == "C", "cool"))
+                           ifelse(dataframe$heat == "C", "cool", NA))
   dataframe$heat <- as.factor(dataframe$heat)
-  dataframe$heat <- factor(dataframe$heat,levels = c("hot", "cool"))
+  dataframe$heat <- factor(dataframe$heat, levels = c("hot", "cool", NA)) 
+  
   
   # Return the data
   return(dataframe)
