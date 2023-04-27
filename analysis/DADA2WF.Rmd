@@ -152,6 +152,9 @@ track <- cbind(filtered_out,
                sapply(dada_reverse, getN),
                sapply(merged_amplicons, getN),
                rowSums(seqtab_nochim))
+
+my_metadata=read.csv("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/metadata.csv")
+
 head(track)
 # Change column names 
 colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nochim")
@@ -160,9 +163,16 @@ rownames(track) <- samples
 track %>%
   as.data.frame() %>%
   rownames_to_column(var = "Run") %>%
-  left_join(., my_metadata, by = "Run") %>% 
+  left_join(., my_metadata, by = "Run", copy = TRUE) %>% 
   pivot_longer(input:nochim, names_to = "read_type", values_to = "num_reads") %>%
+  #make_MA_metadata() %>%
   mutate(read_type = fct_relevel(read_type, "input", "filtered", "denoisedF", "denoisedR", "merged", "nochim")) %>%
+  
+
+# Merge data frames based on Run column
+merged_df <- left_join(track, my_metadata, by = "Run")
+  
+  
   ggplot(aes(x = read_type, y = num_reads, fill = read_type)) + 
   facet_grid(~location) + 
   geom_line(aes(group = Run), color = "grey") + 
@@ -180,7 +190,7 @@ track %>%
   as.data.frame() %>%
   mutate(percent_reads_retained = round((nochim/input)*100, digits = 2)) %>%
   rownames_to_column(var = "names") %>% 
-  make_MA_metadata() %>%
+ # make_MA_metadata() %>%
   # Make the plot! 
   ggplot(aes(x = location, y = percent_reads_retained, fill = location)) + 
   geom_jitter(shape = 21, size = 3, alpha = 0.8) + 
@@ -219,7 +229,7 @@ View(taxa_print)
 
 ```{r eval-accuracy}
 # Check the mock commmunity 
-mock_sample <- seqtab_nochim["SRR15570324",]
+mock_sample <- seqtab_nochim["SRR15570324"]
 length(mock_sample)
 # Drop ASVs absent from mock community 
 length(mock_sample[mock_sample > 0])
@@ -308,25 +318,26 @@ write.table(asv_tax, "data/ASV_taxonomy.tsv", sep = "\t", quote = FALSE, col.nam
 
 ```{r metadata-prep}
 # Read in metadata 
-my_metadata = 
-  read.csv("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/metadata.csv") %>%
-  mutate(X = NULL) %>%
+my_metadata <- read.csv("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/metadata.csv")
+
+
+#mutate(X = NULL) %>%
   # fix typo 
   #mutate(Sample_or_Control = droplevels(fct_recode(Sample_or_Control, "True Sample" = " True Sample")))
 str(my_metadata)
 # Add names to rownames for phyloseq happiness 
-#rownames(my_metadata) <- metadata$names
+#rownames(my_metadata) <- my_metadata$Run
 ```
 
-Time to give our data to phyloseq! 
 
+Time to give our data to phyloseq! 
 
 ## Handoff to phyloseq 
 ```{r phyloseq-handoff}
 raw_physeq <- phyloseq(otu_table(asv_tab, taxa_are_rows = TRUE),
-                         sample_data(my_metadata),
+                         #sample_data(my_metadata),
                          tax_table(as.matrix(asv_tax)))
 raw_physeq
-save(raw_physeq, file = paste0("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/raw_physeq.RData"))
+save(raw_physeq, file = paste0("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/raw_physeq.RData"))
 ```
 

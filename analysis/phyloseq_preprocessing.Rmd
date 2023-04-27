@@ -78,7 +78,7 @@ preprocessed_physeq <- noMitoChloroCJMock_physeq
 
 # Save preprocessed phyloseq!
 ```{r save-physeq}
-save(preprocessed_physeq, file = "data/preprocessed_physeq.RData")
+save(preprocessed_physeq, file = "/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
 ```
 
 
