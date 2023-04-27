@@ -1,0 +1,155 @@
+---
+title: "Compositional Analysis"
+author: "Jiucheng Ding"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    theme: united
+    highlight: tango
+editor_options: 
+  chunk_output_type: console
+---
+
+# Load packages 
+```{r load-packages}
+# Efficiently load packages 
+pacman::p_load(phyloseq, iNEXT, ggpubr, vegan, tidyverse, install = FALSE)
+# load in functions and color preferences
+source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
+source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
+```
+
+# Load data
+```{r load-data}
+load("data/preprocessed_physeq.RData")
+preprocessed_physeq
+# What are the sample size distributions?
+preprocessed_physeq %>%
+  sample_sums() %>%
+  data.frame()  %>%
+  View()
+
+# Remove sample that has fewest number of reads
+# The fewest reads is 1839 and the next was 2267.
+# So, I decided to use those extra 400 reads for more accurate beta div analysis
+physeq_2267 <- preprocessed_physeq %>%
+  prune_samples(sample_sums(.) > 2000, .)
+```
+
+
+```{r scale_reads}
+set.seed(777) 
+# Scale the reads using function scale_reads from functions.R 
+# Intution check of number of sequeces per sample
+min(sample_sums(physeq_2267))
+scaled_physeq2267 <-  
+  physeq_2267 %>%
+  scale_reads(round = "matround")
+  
+# Now check the sequencing depth! 
+scaled_seqSums_df <-   
+scaled_physeq2267 %>%  
+otu_table(.) %>%  # Take the sum of the sample abundance   
+colSums(.) %>%  
+data.frame() %>%  
+rownames_to_column(., var = "names") %>% 
+ make_MA_metadata()
+ 
+ # Rename the 2nd column 
+ colnames(scaled_seqSums_df)[2] <- "TotalSeqs"   
+ 
+ # Plot the histogram
+ scaled_seqSums_df %>%  
+ ggplot(aes(x=TotalSeqs)) + #fill = location   
+ ggtitle("Histogram of Raw Read Counts Samples") +  
+ geom_histogram(bins = 100) + 
+ theme(legend.position = c(0.15, 0.85)) +   
+ scale_y_continuous(expand = c(0,5)) +   
+ scale_x_continuous(limits = c(24475, 24500)) # PLAY AROUND WITH NUMBERS! 
+```
+
+
+# PCoA
+```{r BC}
+# Calculate Bray-Curtis Dissimilarity 
+scaled_BC_pcoa <- 
+  ordinate(
+    physeq = scaled_physeq2267,
+    method = "PCoA",
+    distance = "bray", 
+    binary = FALSE
+  )
+# Plot the PCoA 
+plot_ordination(
+  physeq = scaled_physeq2267,
+  ordination = scaled_BC_pcoa,
+  color = "location",
+  shape = "location", 
+  title = "Scaled Bray-Curtis PCoA") + 
+  geom_point(size = 5, alpha = 0.5, aes(color = location)) + 
+  scale_color_manual(values = location_colors)
+
+# heat 
+plot_ordination(
+  physeq = scaled_physeq2267,
+  ordination = scaled_BC_pcoa,
+  color = "heat",
+  shape = "heat", 
+  title = "Scaled Bray-Curtis PCoA") + 
+  geom_point(size = 5, alpha = 0.5, aes(color = heat)) + 
+  scale_color_manual(values = heat_colors)
+```
+
+# Stats! 
+# Check for differences in the communities using PERMANOVA 
+```{r permanova}
+# Calculate bray curtis for PERMANOVA
+scaled_bray <- phyloseq::distance(scaled_physeq2267, method = "bray", binary = FALSE)
+# pull out metadata 
+metadata <- scaled_physeq2267 %>%
+  sample_data() %>%
+  data.frame()
+# Permutational Multivariate Analysis of Variance Using Distance Matrices
+# aka PERMANOVA using the adonis2 function from vegan 
+# Test the hypothesis that the fraction centriods are different 
+# using the bray curtis 
+# Testing if the centroids of the fractions are different? 
+adonis2(scaled_bray ~ fraction, data = metadata)
+# Are the centroids different for stations based on bray curtis?
+adonis2(scaled_bray ~ station, data = metadata)
+adonis2(scaled_bray ~ date, data = metadata)
+# Are they independent of each other?
+adonis2(scaled_bray ~ date +  station + fraction, data = metadata)
+# Is there an interaction between the variables? 
+adonis2(scaled_bray ~ station * date * fraction, data = metadata)
+```
+
+# Homogeniety of dispersion test: Beta dispr
+```{r}
+# Dispersions between stations 
+betadispr_station <- betadisper(scaled_bray, metadata$station)
+permutest(betadispr_station)
+```
+
+
+# Compositional Analysis 
+```{r}
+phylum_df <- 
+  scaled_physeq2267 %>%
+  tax_glom(taxrank = "Phylum") %>%                     # Agglomerate/merge counts by phylum 
+  transform_sample_counts(function(x) {x/sum(x)}) %>%  # Transform to relative abundances
+  psmelt() %>%                                         # melt into long format data frame 
+  dplyr::filter(Abundance > 0.01)                   # filter out phyla that are > 1% abundant 
+  
+# Plot the phylum distributions 
+phylum_df %>%
+  dplyr::filter(depth == "S") %>%
+  dplyr::filter(Phylum == "Verrucomicrobiota") %>%
+  ggplot(aes(x = fraction, y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", color = "black") + 
+  facet_grid(date~station) + 
+  scale_fill_manual(values = phylum_colors)
+````
