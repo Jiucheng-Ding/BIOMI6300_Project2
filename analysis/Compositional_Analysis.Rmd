@@ -90,7 +90,7 @@ plot_ordination(
   shape = "location", 
   title = "Scaled Bray-Curtis PCoA") + 
   geom_point(size = 5, alpha = 0.5, aes(color = location)) 
-  #scale_color_manual(values = location_colors)
+  scale_color_manual(values = location_colors)
 
 # heat 
 plot_ordination(
@@ -104,17 +104,6 @@ plot_ordination(
 
 ```
 
-
-```{r}
-library(phyloseq)
-
-# create a phyloseq object with OTU table, taxonomic table, and sample data
-physeq <- phyloseq(otu_table, tax_table, sample_data)
-
-# extract sample metadata and convert to data frame
-metadata <- sample_data(physeq) %>% as.data.frame()
-
-```
 
 # Stats! 
 # Check for differences in the communities using PERMANOVA 
