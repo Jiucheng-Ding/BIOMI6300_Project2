@@ -156,11 +156,8 @@ plot_ordination(
   scale_color_manual(values = heat_colors, guide = guide_legend(override.aes = list(shape = 15))) +
   scale_shape_manual(values = location_shapes)
 
-
-
 ```
-From the PCoA, we can visualize that 
-
+From the PCoA, we can visualize that there is a big cap caused by the difference in color. Although the sample size is very small, we can still sense that there must be significant diversity variation caused by different temperature.
 
 
 
