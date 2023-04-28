@@ -157,8 +157,9 @@ plot_ordination(
   scale_shape_manual(values = location_shapes)
 
 
+
 ```
-From the PCoA, we can visualize that
+From the PCoA, we can visualize that 
 
 
 
