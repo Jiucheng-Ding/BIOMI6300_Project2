@@ -335,7 +335,7 @@ my_metadata <- read.csv("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/dat
   #mutate(Sample_or_Control = droplevels(fct_recode(Sample_or_Control, "True Sample" = " True Sample")))
 str(my_metadata)
 # Add names to rownames for phyloseq happiness 
-#rownames(my_metadata) <- my_metadata$Run
+rownames(my_metadata) <- my_metadata$Run
 ```
 
 
@@ -344,7 +344,7 @@ Time to give our data to phyloseq!
 ## Handoff to phyloseq 
 ```{r phyloseq-handoff}
 raw_physeq <- phyloseq(otu_table(asv_tab, taxa_are_rows = TRUE),
-                         #sample_data(my_metadata),
+                         sample_data(my_metadata),
                          tax_table(as.matrix(asv_tax)))
 raw_physeq
 save(raw_physeq, file = paste0("/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/raw_physeq.RData"))

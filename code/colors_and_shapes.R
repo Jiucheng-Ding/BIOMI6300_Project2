@@ -5,18 +5,18 @@ location_shapes <- c(
   "FC" = 23, 
   "JJ" = 21)
 
-location_colors <- c(
-  "FC" = "goldenrod1", 
-  "JJ" = "darkorange2")
+#location_colors <- c(
+ # "FC" = "goldenrod1", 
+ # "JJ" = "darkorange2")
 
 
 heat_colors <- c(
   "hot" = "steelblue3",
   "cool" = "firebrick3")
 
-heat_shapes <- c(
-  "hot" = "14",
-  "cool" = "15")
+#heat_shapes <- c(
+#  "hot" = "14",
+ # "cool" = "15")
 # Set the ggplot theme
 theme_set(theme_bw() + 
             theme(axis.title = element_text(size = 12),
