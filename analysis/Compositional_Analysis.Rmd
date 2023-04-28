@@ -29,7 +29,6 @@ This R Markdown analysis aims to discover the role of temperature that may play 
 
 
 #Here we are going to load the packages and sources required. 
-
 ```{r load-packages}
 # Efficiently load packages 
 pacman::p_load(phyloseq, iNEXT, ggpubr, vegan, tidyverse, install = FALSE)
@@ -38,6 +37,7 @@ pacman::p_load(phyloseq, iNEXT, ggpubr, vegan, tidyverse, install = FALSE)
 source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
 source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
 ```
+
 
 # The following chunk will produce the rarefaction plot so that we can have a brief idea of how the species richness increase as the number of sequences increase. Interestingly, we can see that both 0324 and 0326 (the cool samples) have plateaued at a lower richness than 0325 and 0327. This could be suggesting that there might be a relationship between higher temperature and lower species richness.
 ```{r rarefaction}
@@ -124,10 +124,10 @@ scaled_seqSums_df %>%
   scale_x_continuous(limits = c(24480, 24490), breaks = seq(24480,24490,5))
 
 ```
+This figure simply shows the sample sequence size distribution at this step. We can tell that all 4 of the samples are within a very small range, between 24480 and 24490.
 
 
 # PCoA, plot the PCoA showing the Bray-Curtis disimilarities of the data:
-
 ```{r BC}
 # Calculate Bray-Curtis Dissimilarity 
 scaled_BC_pcoa <- 
@@ -161,6 +161,7 @@ From the PCoA, we can visualize that there is a big cap caused by the difference
 
 
 
+
 # Stats!
 
 # Check for differences in the communities using PERMANOVA!
@@ -188,24 +189,35 @@ adonis2(scaled_bray ~ location +heat,data = metadata)
 # Is there an interaction between the variables? 
 adonis2(scaled_bray ~ location * heat, data = metadata)
 ```
+From this PERMANOVA test, we can get conclusion that:
+The first test shows the results of the adonis2 test with only location as a predictor, which indicates that location does not significantly explain the variation in the data (p-value = 0.6667).
+
+The second test shows the results of the adonis2 test with only heat as a predictor, which also indicates that heat does not significantly explain the variation in the data (p-value = 0.3333).
+
+The third test shows the results of the adonis2 test with both location and heat as predictors, which also indicates that neither location nor heat significantly explain the variation in the data (p-values = 0.5000 and 0.1667, respectively).
+
+The fourth test shows the results of the adonis2 test with an interaction term between location and heat as a predictor, which shows that the model explains all of the variation in the data and that there is no residual variation left (R2 = 1).
+
+However, the results may also be due to the fact that the sample size is extremely small. If resources allow, the sample size should be much bigger and it will be easier to generate significant conclusion from it.
+
+
 
 # Homogeniety of dispersion test: Beta dispr
 
 Dispersion between heat(hot/cool): and between location(Fc/JJ):
 
-```{r}
-#Between different heats:
+```{r beta dispr}
+#Between different heats(hot/cool):
 betadispr_heat <- betadisper(scaled_bray, my_metadata$heat)
 permutest(betadispr_heat)
 
 #Between locations (FC, JJ):
 betadispr_location<- betadisper(scaled_bray, my_metadata$location)
 permutest(betadispr_location)
-
-
 ```
 
 The output from permutest indicates that there is a significant difference in multivariate dispersion between the two groups ("cold" and "heat"). The p-value is 0.04167, which is less than 0.05 (assuming alpha=0.05). The ANOVA F-test also suggests a significant difference between groups, with a very large F-statistic and an essentially perfect fit (which may make the summary unreliable).
+
 
 
 
@@ -235,5 +247,10 @@ ggplot(data = phylum_df_grouped, aes(x = Sample, y = total_abundance, fill = Phy
 
 
 The output of the phylum distribution shows that Chloroflexi is the most dominant phylum mostly across each sample. Interestingly, we can see that it has a lower composition in cooler condition than hotter condition. Could temperature directly or indirectly have an interplay with the compositional distribution of these anoxygenic microbiome? This is a very interesting topic to delve into.
+
+Conclusion:
+The analysis presented in this R Markdown document aims to explore the role of temperature on the diversity and composition of the microbiome from samples collected from two different locations with varying temperatures. The data was preprocessed and rarefaction plots were created to visualize the species richness. Interestingly, the cool samples plateaued at a lower richness than the hot samples, which could suggest a relationship between higher temperature and higher species richness. The sample size distributions were also checked and visualized.
+
+However, this analysis has some limitations. Firstly, the small sample size of only four samples from two locations may not be representative of the entire population of anoxygenic phototrophs across geothermal springs. Secondly, the analysis only focuses on the role of temperature and does not take into account other environmental factors that could affect the diversity and composition of the microbiome. Overall, further research and analysis with a larger dataset and a more comprehensive approach would be needed to confirm the findings presented in this document.
 
 
