@@ -15,22 +15,20 @@ editor_options:
 
 Accession: PRJNA756970
 
-Background
-
-
+Background:
+Anoxygenic phototrophs are widely distributed among different habitats and especially in extreme conditions. Factors such as the ability to harvest light and tolerate oxygen are important in determining where phototrophs exist, and studies in hot springs have shown that temperature, pH, and sulfide also play a role. However, previous studies have lacked the necessary resolution to fully understand the diversity of these bacteria (reference).
 
 
 Introduction:
-
 The samples were collected for the purpose of a grant. The name of the project was "Phototropy in eruptive hot springs". The project aims to discover the distribution and activity of metabolically diverse anoxygenic phototrophs across geothermal spings. 4 sample were collected for this project, from 2 locations of sampling (FC,JJ) and with each has two different temperatures (hot and cool). 
+
 This R Markdown analysis aims to discover the role of temperature that may play in affecting the diversity and composition of the microbiome from the sample. 
 
 
+#Before this analysis, file "preprocessed_physeq" has already been generated and the .RData file can be found in data folder.
 
 
-
-
-Here we are going to load the packages and sources required. \# Load packages
+#Here we are going to load the packages and sources required. \# Load packages
 
 ```{r load-packages}
 # Efficiently load packages 
@@ -41,7 +39,44 @@ source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions
 source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
 ```
 
-# Load data
+# The following chunk will produce the rarefaction plot so that we can have a brief idea of how the species richness increase as the number of sequences increase. Interestingly, we can see that both 0324 and 0326 (the cool samples) have plateaued at a lower richness than 0325 and 0327. This could be suggesting that there might be a relationship between higher temperature and lower species richness.
+```{r rarefaction}
+location_colors
+# Set colors for manual plotting with iNEXT
+
+background_col_FL <- "goldenrod1"
+background_col_PA <- "firebrick3"
+background_col_WH <- "darkorange2"
+
+# Prepare data to color the figure for iNEXT
+dat <- colnames(iNEXT_input_df) %>%  
+  data.frame() 
+colnames(dat)[1] <- "names"     
+sub_metadata <- dat %>% make_MA2_metadata()
+# Add the colors for the plotting!
+dat_iNEXT <- dat %>%    
+  left_join(sub_metadata, by = "names") %>%  
+  mutate(location_color = ifelse(location == "FC", background_col_PA, 
+                                 ifelse(location == "JJ", background_col_FL)))
+                                
+                
+# Now plot it all :) 
+# Plot the rarefaction/extrapolation curve (type = 1)
+rarefaction_fixed_plot <- 
+  ggiNEXT(iNEXT_data, type=1, facet.var="Order.q") + 
+  facet_wrap(~Order.q, scales="fixed") +
+  #scale_color_manual(values = dat_iNEXT$location_color,  guide = FALSE) +
+  #scale_fill_manual(values = dat_iNEXT$location_color, guide = FALSE) +
+  theme(legend.position = "right",axis.text.x = element_text(size = 8)) + 
+    labs(x = "Number of Sequences", y="Species Richness")
+rarefaction_fixed_plot
+# Save the file! 
+ggsave(rarefaction_fixed_plot, 
+       filename = "figures/rarefaction_fixed.png",
+       units = "in", height = 3.5, width = 8)
+```
+
+# The following chunk will 
 
 ```{r load-data}
 load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
@@ -49,12 +84,12 @@ preprocessed_physeq
 # What are the sample size distributions?
 preprocessed_physeq %>%
   sample_sums() %>%
-  data.frame()  %>%
-  View()
+  data.frame()  
+  #View()
 
 # Remove sample that has fewest number of reads
-# The fewest reads is 1839 and the next was 2267.
-# So, I decided to use those extra 400 reads for more accurate beta div analysis
+# The fewest reads is 24489 and the next was 25951
+
 physeq_2267 <- preprocessed_physeq %>%
   prune_samples(sample_sums(.) > 2000, .)
 ```
@@ -90,7 +125,8 @@ scaled_seqSums_df %>%
 
 ```
 
-# PCoA
+
+# PCoA, plot the PCoA showing the Bray-Curtis disimilarities of the data:
 
 ```{r BC}
 # Calculate Bray-Curtis Dissimilarity 
@@ -105,10 +141,10 @@ scaled_BC_pcoa <-
 plot_ordination(
   physeq = scaled_physeq2267,
   ordination = scaled_BC_pcoa,
-  color = "location",
-  shape = "location", 
+  color = "heat_colors",
+  shape = "location_shapes", 
   title = "Scaled Bray-Curtis PCoA") + 
-  geom_point(size = 5, alpha = 0.5, aes(color = location)) 
+  geom_point(size = 5, alpha = 0.5, aes(color = heat_colors, shape=location_shapes)) 
   scale_color_manual(values = location_colors)
 
 # heat 
@@ -123,9 +159,14 @@ plot_ordination(
 
 ```
 
+
+
+
+
 # Stats!
 
-# Check for differences in the communities using PERMANOVA
+# Check for differences in the communities using PERMANOVA!
+
 
 ```{r permanova}
 # Calculate bray curtis for PERMANOVA
@@ -137,17 +178,17 @@ metadata <- scaled_physeq2267 %>%
   data.frame()
 # Permutational Multivariate Analysis of Variance Using Distance Matrices
 # aka PERMANOVA using the adonis2 function from vegan 
-# Test the hypothesis that the fraction centriods are different 
+
 # using the bray curtis 
 # Testing if the centroids of the fractions are different? 
 adonis2(scaled_bray ~ location, data = metadata)
-# Are the centroids different for stations based on bray curtis?
+
 adonis2(scaled_bray ~ heat, data = metadata)
-adonis2(scaled_bray ~ pH, data = metadata)
+
 # Are they independent of each other?
-adonis2(scaled_bray ~ location +heat+ pH, data = metadata)
+adonis2(scaled_bray ~ location +heat,data = metadata)
 # Is there an interaction between the variables? 
-adonis2(scaled_bray ~ location * heat * pH, data = metadata)
+adonis2(scaled_bray ~ location * heat, data = metadata)
 ```
 
 # Homogeniety of dispersion test: Beta dispr
