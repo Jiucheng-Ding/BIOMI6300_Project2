@@ -93,14 +93,7 @@ plot_ordination(
   #scale_color_manual(values = location_colors)
 
 # heat 
-plot_ordination(
-  physeq = scaled_physeq2267,
-  ordination = scaled_BC_pcoa,
-  color = "heat_colors",
-  shape = "heat_shapes", 
-  title = "Scaled Bray-Curtis PCoA") + 
-  geom_point(size = 5, alpha = 0.5, aes(color = "heat_colors")) + 
-  #scale_color_manual(values = heat_colors)
+
 ```
 
 
