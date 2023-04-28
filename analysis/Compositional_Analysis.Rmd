@@ -13,16 +13,36 @@ editor_options:
   chunk_output_type: inline
 ---
 
-# Load packages 
+Accession: PRJNA756970
+
+Background
+
+
+
+
+Introduction:
+
+The samples were collected for the purpose of a grant. The name of the project was "Phototropy in eruptive hot springs". The project aims to discover the distribution and activity of metabolically diverse anoxygenic phototrophs across geothermal spings. 4 sample were collected for this project, from 2 locations of sampling (FC,JJ) and with each has two different temperatures (hot and cool). 
+This R Markdown analysis aims to discover the role of temperature that may play in affecting the diversity and composition of the microbiome from the sample. 
+
+
+
+
+
+
+Here we are going to load the packages and sources required. \# Load packages
+
 ```{r load-packages}
 # Efficiently load packages 
 pacman::p_load(phyloseq, iNEXT, ggpubr, vegan, tidyverse, install = FALSE)
+
 # load in functions and color preferences
 source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R")
 source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R")
 ```
 
 # Load data
+
 ```{r load-data}
 load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
 preprocessed_physeq
@@ -38,7 +58,6 @@ preprocessed_physeq %>%
 physeq_2267 <- preprocessed_physeq %>%
   prune_samples(sample_sums(.) > 2000, .)
 ```
-
 
 ```{r scale_reads}
 set.seed(777) 
@@ -71,8 +90,8 @@ scaled_seqSums_df %>%
 
 ```
 
-
 # PCoA
+
 ```{r BC}
 # Calculate Bray-Curtis Dissimilarity 
 scaled_BC_pcoa <- 
@@ -104,9 +123,10 @@ plot_ordination(
 
 ```
 
+# Stats!
 
-# Stats! 
-# Check for differences in the communities using PERMANOVA 
+# Check for differences in the communities using PERMANOVA
+
 ```{r permanova}
 # Calculate bray curtis for PERMANOVA
 scaled_bray <- phyloseq::distance(scaled_physeq2267, method = "bray", binary = FALSE)
@@ -130,11 +150,10 @@ adonis2(scaled_bray ~ location +heat+ pH, data = metadata)
 adonis2(scaled_bray ~ location * heat * pH, data = metadata)
 ```
 
-
-
 # Homogeniety of dispersion test: Beta dispr
-Dispersion between heat(hot/cool):
-and between location(Fc/JJ):
+
+Dispersion between heat(hot/cool): and between location(Fc/JJ):
+
 ```{r}
 #Between different heats:
 betadispr_heat <- betadisper(scaled_bray, my_metadata$heat)
@@ -146,15 +165,14 @@ permutest(betadispr_location)
 
 
 ```
+
 The output from permutest indicates that there is a significant difference in multivariate dispersion between the two groups ("cold" and "heat"). The p-value is 0.04167, which is less than 0.05 (assuming alpha=0.05). The ANOVA F-test also suggests a significant difference between groups, with a very large F-statistic and an essentially perfect fit (which may make the summary unreliable).
-
-
-
 
 Then perform phylum compositional analysis by using a stack boxplot:
 
-# Compositional Analysis 
-```{r}
+# Compositional Analysis
+
+``` {r}
 phylum_df <- 
   scaled_physeq2267 %>%
   tax_glom(taxrank = "Phylum") %>%                     # Agglomerate/merge counts by phylum 
@@ -173,4 +191,4 @@ ggplot(data = phylum_df_grouped, aes(x = Sample, y = total_abundance, fill = Phy
   geom_col() +
   labs(x = "Sample", y = "Total Abundance", fill = "Phylum") +
   theme_bw()
-````
+```
