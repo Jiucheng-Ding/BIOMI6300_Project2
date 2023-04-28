@@ -28,7 +28,7 @@ This R Markdown analysis aims to discover the role of temperature that may play 
 #Before this analysis, file "preprocessed_physeq" has already been generated and the .RData file can be found in data folder.
 
 
-#Here we are going to load the packages and sources required. \# Load packages
+#Here we are going to load the packages and sources required. 
 
 ```{r load-packages}
 # Efficiently load packages 
@@ -76,8 +76,8 @@ ggsave(rarefaction_fixed_plot,
        units = "in", height = 3.5, width = 8)
 ```
 
-# The following chunk will 
 
+# The following two chunks will check the sample size distribution and visualize it.
 ```{r load-data}
 load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
 preprocessed_physeq
@@ -137,28 +137,28 @@ scaled_BC_pcoa <-
     distance = "bray", 
     binary = FALSE
   )
-# Plot the PCoA 
-plot_ordination(
-  physeq = scaled_physeq2267,
-  ordination = scaled_BC_pcoa,
-  color = "heat_colors",
-  shape = "location_shapes", 
-  title = "Scaled Bray-Curtis PCoA") + 
-  geom_point(size = 5, alpha = 0.5, aes(color = heat_colors, shape=location_shapes)) 
-  scale_color_manual(values = location_colors)
 
-# heat 
+
 plot_ordination(
   physeq = scaled_physeq2267,
   ordination = scaled_BC_pcoa,
   color = "heat",
-  shape = "heat", 
-  title = "Scaled Bray-Curtis PCoA") + 
-  geom_point(size = 5, alpha = 0.5, aes(color = heat))  
-  scale_color_manual(values = heat_colors)
+  shape = "location", 
+  title = "Scaled Bray-Curtis PCoA"
+) + 
+  geom_point(
+    size = 5, 
+    alpha = 6, 
+    aes(color = heat, shape = location), 
+    stroke = 0.8, 
+    show.legend = TRUE
+  ) +
+  scale_color_manual(values = heat_colors, guide = guide_legend(override.aes = list(shape = 15))) +
+  scale_shape_manual(values = location_shapes)
+
 
 ```
-
+From the PCoA, we can visualize that
 
 
 
@@ -209,8 +209,9 @@ permutest(betadispr_location)
 
 The output from permutest indicates that there is a significant difference in multivariate dispersion between the two groups ("cold" and "heat"). The p-value is 0.04167, which is less than 0.05 (assuming alpha=0.05). The ANOVA F-test also suggests a significant difference between groups, with a very large F-statistic and an essentially perfect fit (which may make the summary unreliable).
 
-Then perform phylum compositional analysis by using a stack boxplot:
 
+
+Then perform phylum compositional analysis by using a stack boxplot:
 # Compositional Analysis
 
 ``` {r}
@@ -233,3 +234,8 @@ ggplot(data = phylum_df_grouped, aes(x = Sample, y = total_abundance, fill = Phy
   labs(x = "Sample", y = "Total Abundance", fill = "Phylum") +
   theme_bw()
 ```
+
+
+The output of the phylum distribution shows that Chloroflexi is the most dominant phylum mostly across each sample. Interestingly, we can see that it has a lower composition in cooler condition than hotter condition. Could temperature directly or indirectly have an interplay with the compositional distribution of these anoxygenic microbiome? This is a very interesting topic to delve into.
+
+
