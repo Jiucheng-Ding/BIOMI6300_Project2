@@ -1597,14 +1597,15 @@ Yellowstone</h1>
 
 
 <p>Accession: PRJNA756970</p>
-<p>Background: Anoxygenic phototrophs are widely distributed among
+<p>data source: <a href="https://www.ncbi.nlm.nih.gov/bioproject/756970" class="uri">https://www.ncbi.nlm.nih.gov/bioproject/756970</a></p>
+<p>#Background: Anoxygenic phototrophs are widely distributed among
 different habitats and especially in extreme conditions. Factors such as
 the ability to harvest light and tolerate oxygen are important in
 determining where phototrophs exist, and studies in hot springs have
 shown that temperature, pH, and sulfide also play a role. However,
 previous studies have lacked the necessary resolution to fully
-understand the diversity of these bacteria (reference).</p>
-<p>Introduction: The samples were collected for the purpose of a grant.
+understand the diversity of these bacteria (Hamilton et al., 2019).</p>
+<p>#Introduction: The samples were collected for the purpose of a grant.
 The name of the project was “Phototropy in eruptive hot springs”. The
 project aims to discover the distribution and activity of metabolically
 diverse anoxygenic phototrophs across geothermal spings. 4 sample were
@@ -1613,7 +1614,7 @@ with each has two different temperatures (hot and cool).</p>
 <p>This R Markdown analysis aims to discover the role of temperature
 that may play in affecting the diversity and composition of the
 microbiome from the sample.</p>
-<p>#Before this analysis, file “preprocessed_physeq” has already been
+<p>Before this analysis, file “preprocessed_physeq” has already been
 generated and the .RData file can be found in data folder.</p>
 <p>#Here we are going to load the packages and sources required.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Efficiently load packages </span></span>
@@ -1622,16 +1623,9 @@ generated and the .RData file can be found in data folder.</p>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># load in functions and color preferences</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/functions.R&quot;</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_and_shapes.R&quot;</span>)</span></code></pre></div>
-<div id="the-following-chunk-will-produce-the-rarefaction-plot-so-that-we-can-have-a-brief-idea-of-how-the-species-richness-increase-as-the-number-of-sequences-increase.-interestingly-we-can-see-that-both-0324-and-0326-the-cool-samples-have-plateaued-at-a-lower-richness-than-0325-and-0327.-this-could-be-suggesting-that-there-might-be-a-relationship-between-higher-temperature-and-lower-species-richness." class="section level1">
-<h1>The following chunk will produce the rarefaction plot so that we can
-have a brief idea of how the species richness increase as the number of
-sequences increase. Interestingly, we can see that both 0324 and 0326
-(the cool samples) have plateaued at a lower richness than 0325 and
-0327. This could be suggesting that there might be a relationship
-between higher temperature and lower species richness.</h1>
-</div>
-<div id="load-data" class="section level1">
-<h1>Load data</h1>
+<div id="load-data-dada2-phyloseq-preprocessed-performed-before-the-following-analysis." class="section level1">
+<h1>Load data, DADA2 phyloseq preprocessed performed before the
+following analysis.</h1>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>preprocessed_physeq</span></code></pre></div>
 <pre><code>## phyloseq-class experiment-level object
@@ -1665,6 +1659,10 @@ between higher temperature and lower species richness.</h1>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  iNEXT_data<span class="sc">$</span>AsyEst <span class="sc">%&gt;%</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">names =</span> Assemblage) <span class="sc">%&gt;%</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_MA_metadata</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="the-following-chunk-will-produce-the-rarefaction-plot" class="section level1">
+<h1>The following chunk will produce the rarefaction plot:</h1>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>location_colors</span></code></pre></div>
 <pre><code>##            FC            JJ 
 ##  &quot;goldenrod1&quot; &quot;darkorange2&quot;</code></pre>
@@ -1701,7 +1699,10 @@ between higher temperature and lower species richness.</h1>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(rarefaction_fixed_plot, </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">filename =</span> <span class="st">&quot;figures/rarefaction_fixed.png&quot;</span>,</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">units =</span> <span class="st">&quot;in&quot;</span>, <span class="at">height =</span> <span class="fl">3.5</span>, <span class="at">width =</span> <span class="dv">8</span>)</span></code></pre></div>
-</div>
+<p>Interestingly, from the rarefaction plot we can see that both 0324
+and 0326 (the cool samples) have plateaued at a lower richness than 0325
+and 0327. This could be suggesting that there might be a relationship
+between higher temperature and lower species richness.</p>
 </div>
 <div id="the-following-two-chunks-will-check-the-sample-size-distribution-and-visualize-it." class="section level1">
 <h1>The following two chunks will check the sample size distribution and
@@ -1980,6 +1981,13 @@ that could affect the diversity and composition of the microbiome.
 Overall, further research and analysis with a larger dataset and a more
 comprehensive approach would be needed to confirm the findings presented
 in this document.</p>
+<p>#References: [1] Hamilton, T. L., Bennett, A. C., Murugapiran, S. K.,
+&amp; Havig, J. R. (2019). Anoxygenic Phototrophs Span Geochemical
+Gradients and Diverse Morphologies in Terrestrial Geothermal Springs.
+mSystems, 4(6), e00498-19.</p>
+<p>[2] U.S. National Library of Medicine. (n.d.). ID 756970 - bioproject
+- NCBI. National Center for Biotechnology Information. Retrieved April
+27, 2023, from <a href="https://www.ncbi.nlm.nih.gov/bioproject/756970" class="uri">https://www.ncbi.nlm.nih.gov/bioproject/756970</a></p>
 </div>
 <div id="session-information" class="section level1">
 <h1>Session Information</h1>
