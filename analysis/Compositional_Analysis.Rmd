@@ -1,7 +1,9 @@
 ---
-title: "Compositional Analysis"
+title: "Microbiome in Alkaline Geothermal Spring At Yellowstone"
 author: "Jiucheng Ding"
 date: "`r Sys.Date()`"
+
+link-citations: true
 output: 
   html_document:
     toc: true
@@ -40,6 +42,43 @@ source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_an
 
 
 # The following chunk will produce the rarefaction plot so that we can have a brief idea of how the species richness increase as the number of sequences increase. Interestingly, we can see that both 0324 and 0326 (the cool samples) have plateaued at a lower richness than 0325 and 0327. This could be suggesting that there might be a relationship between higher temperature and lower species richness.
+
+
+# Load data
+```{r load-data_preprocessed_physeq}
+load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
+preprocessed_physeq
+```
+
+## Work with the iNEXT package 
+```{r iNEXT-div-estimation}
+# Prepare data for iNEXT
+iNEXT_input_df <- 
+  preprocessed_physeq %>%
+  otu_table() %>%
+  data.frame()
+
+# Run iNEXT on the data   
+# Warning: Takes ~5 mins to run!
+# Calculate diversity with iNEXT
+set.seed(777)
+# WARNING: This command takes a while 
+# Calculating over night 
+iNEXT_data <- iNEXT(iNEXT_input_df, q = c(0, 1, 2), datatype = "abundance")
+save(iNEXT_data, file = "/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/iNEXT_Yellowstone.RData")
+
+load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/iNEXT_Yellowstone.RData")
+# Note that the object is called "iNEXT_data"
+
+typeof(iNEXT_data)
+
+# Make workable dataframe ##################### The following dataframe must be fixed.
+div_iNEXT_df <- 
+  iNEXT_data$AsyEst %>%
+  dplyr::rename(names = Assemblage) %>%
+  make_MA_metadata()
+```
+
 ```{r rarefaction}
 location_colors
 # Set colors for manual plotting with iNEXT
@@ -208,11 +247,12 @@ Dispersion between heat(hot/cool): and between location(Fc/JJ):
 
 ```{r beta dispr}
 #Between different heats(hot/cool):
-betadispr_heat <- betadisper(scaled_bray, my_metadata$heat)
+betadispr_heat <- betadisper(scaled_bray, metadata$heat)
 permutest(betadispr_heat)
 
 #Between locations (FC, JJ):
-betadispr_location<- betadisper(scaled_bray, my_metadata$location)
+betadispr_location<- betadisper(scaled_bray, metadata$location)
+
 permutest(betadispr_location)
 ```
 
@@ -253,4 +293,8 @@ The analysis presented in this R Markdown document aims to explore the role of t
 
 However, this analysis has some limitations. Firstly, the small sample size of only four samples from two locations may not be representative of the entire population of anoxygenic phototrophs across geothermal springs. Secondly, the analysis only focuses on the role of temperature and does not take into account other environmental factors that could affect the diversity and composition of the microbiome. Overall, further research and analysis with a larger dataset and a more comprehensive approach would be needed to confirm the findings presented in this document.
 
-
+# Session Information 
+```{r}
+# Reproducibility
+devtools::session_info()
+```
