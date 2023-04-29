@@ -1,1 +1,2 @@
 Hi! This is the analysis part with R projects folder.
+The two documents of Analysis_Report are the final product and you will be interested in them.DADA2WF is the DADA2 workflow and phyloseq_preprocessing.Rmd if the phyloseq preprocessing. Diversity works on the diversity and it looks a bit broken.
