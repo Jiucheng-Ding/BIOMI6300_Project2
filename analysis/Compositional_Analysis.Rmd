@@ -41,10 +41,8 @@ source("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/code/colors_an
 ```
 
 
-# The following chunk will produce the rarefaction plot so that we can have a brief idea of how the species richness increase as the number of sequences increase. Interestingly, we can see that both 0324 and 0326 (the cool samples) have plateaued at a lower richness than 0325 and 0327. This could be suggesting that there might be a relationship between higher temperature and lower species richness.
 
-
-# Load data
+# Load data, DADA2 phyloseq preprocessed performed before the following analysis.
 ```{r load-data_preprocessed_physeq}
 load("/local/workdir/jd2263/BIOMI6300_Project2_AmpliconAnalysis/data/preprocessed_physeq.RData")
 preprocessed_physeq
@@ -78,7 +76,7 @@ div_iNEXT_df <-
   dplyr::rename(names = Assemblage) %>%
   make_MA_metadata()
 ```
-
+# The following chunk will produce the rarefaction plot:
 ```{r rarefaction}
 location_colors
 # Set colors for manual plotting with iNEXT
@@ -114,7 +112,7 @@ ggsave(rarefaction_fixed_plot,
        filename = "figures/rarefaction_fixed.png",
        units = "in", height = 3.5, width = 8)
 ```
-
+Interestingly, from the rarefaction plot we can see that both 0324 and 0326 (the cool samples) have plateaued at a lower richness than 0325 and 0327. This could be suggesting that there might be a relationship between higher temperature and lower species richness.
 
 # The following two chunks will check the sample size distribution and visualize it.
 ```{r load-data}
